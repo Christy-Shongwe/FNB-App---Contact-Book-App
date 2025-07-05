@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    
+</head>
+<body>
+    <!-- Table Layout -->
+    <table border="1">
+        <tr>                    <!-- Table Rows -->
+            <td colspan="4">    <!-- Spans across 4 coloumns -->
+                <input type="text" id="inputBox" value="0" readonly />  
+            </td>
+        </tr>
+        
+        <tr>
+            <td class="digitButton" onclick="digitButtonPress(7)">7</td>
+            <td class="digitButton" onclick="digitButtonPress(8)">8</td>
+            <td class="digitButton" onclick="digitButtonPress(9)">9</td>
+            <td class="operatorButton" onclick="operatorButtonPress('*')">×</td>
+        </tr>
+        <!-- onclick handlers call JavaScript functions -->
+        <!-- Clicking on a specific cell in the table will call the specified function -->
+        <!-- different button types are given different classes  -->
+        <tr>
+            <td class="digitButton" onclick="digitButtonPress(4)">4</td>
+            <td class="digitButton" onclick="digitButtonPress(5)">5</td>
+            <td class="digitButton" onclick="digitButtonPress(6)">6</td>
+            <td class="operatorButton" onclick="operatorButtonPress('-')">-</td>
+        </tr>
+        
+        <tr>
+            <td class="digitButton" onclick="digitButtonPress(1)">1</td>
+            <td class="digitButton" onclick="digitButtonPress(2)">2</td>
+            <td class="digitButton" onclick="digitButtonPress(3)">3</td>
+            <td class="operatorButton" onclick="operatorButtonPress('+')">+</td>
+        </tr>
+        
+        <tr>
+            <td class="digitButton" onclick="digitButtonPress(0)">0</td>
+            <td class="digitButton" onclick="decimalButtonPress()">.</td>
+            <td class="acButton" onclick="acButtonPress()">AC</td>
+            <td class="operatorButton" onclick="operatorButtonPress('/')">÷</td>
+        </tr>
+        
+        <tr>
+            <td class="operatorButton" colspan="4" onclick="equalButtonPress()">=</td>
+        </tr>
+    </table>
+    <!-- Table layout ends here -->
+
+
+    <script>
+        var newline = true;                 // Determines if the next input should start a new number
+        var value1 = null;                  // Stores the first operand
+        var currentOperator = null;         // Stores the current operation
+        var hasDecimal = false;             // Tracks if current number has a decimal
+        var display = document.getElementById("inputBox");
+
+        // Event handler for digit buttons
+        function digitButtonPress(button){    
+            if(newline){                    // If we are starting a new number (newline is true),
+                display.value = button;     // The button value is displayed
+                newline = false;            
+                hasDecimal = false;
+            } else {
+                // Prevent leading zeros (except for decimals)
+                if (display.value === "0") {
+                    display.value = button;
+                } else {
+                    display.value += button;
+                }
+            }
+        }
+
+        // Event handler for decimal button
+        function decimalButtonPress() {
+            if (newline) {
+                display.value = "0.";
+                newline = false;
+                hasDecimal = true;
+            } else if (!hasDecimal) {
+                // Add decimal to current number if it doesn't have one
+                display.value += ".";
+                hasDecimal = true;
+            }
+        }
+
+        // Event handler for AC (All Clear) button 
+        function acButtonPress(){   
+            display.value = "0";
+            newline = true;
+            hasDecimal = false;
+            value1 = null;
+            currentOperator = null;
+        }
+
+        // Event handler for operator buttons
+        function operatorButtonPress(operator){
+            if (!newline || value1 !== null) {
+                // If there's a current calculation pending, complete it first
+                if (value1 !== null && currentOperator && !newline) {
+                    equalButtonPress();
+                }
+                value1 = parseFloat(display.value);
+            }
+            currentOperator = operator;
+            newline = true;
+            hasDecimal = false;
+        }
+
+        // Event handler for equals button
+        function equalButtonPress(){
+            if (value1 === null || currentOperator === null) return;
+            
+            var value2 = parseFloat(display.value);
+            var finalTotal;
+            
+            switch(currentOperator){
+                case "+":
+                    finalTotal = value1 + value2;
+                    break;
+                case "-":
+                    finalTotal = value1 - value2;
+                    break;
+                case "*":
+                    finalTotal = value1 * value2;
+                    break;
+                case "/":
+                    finalTotal = value1 / value2;
+                    break;
+                default:
+                    return;
+            }
+            
+            // Display result with proper decimal handling
+            display.value = finalTotal.toString();
+            hasDecimal = display.value.includes('.');
+            
+            // Prepare for next operation
+            value1 = finalTotal;
+            newline = true;
+        }
+    </script>
+</body>
+</html>
